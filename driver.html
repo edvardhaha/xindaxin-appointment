@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>华瀚物流 - 送货预约</title>
+<style>
+:root {
+  --primary: #1677ff;
+  --primary-dark: #0958d9;
+  --success: #52c41a;
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #333333;
+  --text-secondary: #666666;
+  --text-light: #999999;
+  --border: #e8e8e8;
+  --danger: #ff4d4f;
+  --radius: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 顶部导航 */
+.header {
+  background: linear-gradient(135deg, var(--primary), #4096ff);
+  color: #fff;
+  padding: 20px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(22,119,255,0.2);
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.header .subtitle {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+/* 主体 */
+.container {
+  padding: 16px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* 卡片 */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+/* 表单 */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.form-label .required {
+  color: var(--danger);
+  margin-left: 2px;
+  font-weight: 600;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--text);
+  background: #fafafa;
+  transition: all 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(22,119,255,0.1);
+}
+
+.form-input::placeholder, .form-textarea::placeholder {
+  color: #bfbfbf;
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* 行内双字段 */
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+/* 单位后缀 */
+.input-with-unit {
+  position: relative;
+}
+
+.input-with-unit .form-input {
+  padding-right: 40px;
+}
+
+.input-with-unit .unit {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* 卸载方式单选 */
+.radio-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.radio-item {
+  flex: 1;
+  min-width: 80px;
+}
+
+.radio-item input {
+  display: none;
+}
+
+.radio-item label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+  text-align: center;
+}
+
+.radio-item input:checked + label {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #e6f4ff;
+  font-weight: 500;
+}
+
+/* 按钮 */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #4096ff);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(22,119,255,0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  background: #d9d9d9;
+  color: #999;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* 提示 */
+.hint {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
+.hint.error {
+  color: var(--danger);
+}
+
+/* 成功页 */
+.success-page {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-icon {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, var(--success), #73d13d);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  animation: scaleIn 0.4s ease;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.success-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.success-page h2 {
+  font-size: 22px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.success-page .sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.success-info {
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.success-info .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.success-info .row .label {
+  color: var(--text-secondary);
+}
+
+.success-info .row .value {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* 提示卡片 */
+.tips-card {
+  background: #fffbe6;
+  border: 1px solid #ffe58f;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #ad8b00;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tips-card svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--danger);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 999;
+  animation: slideDown 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-width: 90%;
+  text-align: center;
+}
+
+@keyframes slideDown {
+  from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* 加载中 */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.loading-spinner {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 36px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-spinner p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* 底部提示 */
+.footer-tip {
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: var(--text-light);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>新大新物流园</h1>
+  <div class="subtitle">供应商送货预约平台</div>
+</div>
+
+<!-- Toast 容器 -->
+<div id="toastContainer"></div>
+
+<!-- 加载中 -->
+<div id="loadingOverlay" class="loading-overlay" style="display:none">
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+    <p>提交中...</p>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
+  <!-- 收货时间表 -->
+  <div class="tips-card" style="flex-direction:column;align-items:stretch;gap:6px;">
+    <div style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:14px;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="7" stroke="#ad8b00" stroke-width="1.5"/>
+        <path d="M8 4v4M8 11v1" stroke="#ad8b00" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      收货时间表
+    </div>
+    <div style="line-height:1.8;padding-left:22px;">
+      <div>标品 <strong>08:00-12:00</strong></div>
+      <div>生鲜 <strong>03:00-05:00</strong></div>
+      <div>万邦自采 <strong>14:00前到仓</strong></div>
+      <div style="margin-top:4px;color:#ad6800;"><strong>17:00前</strong>完成预约，次日送货</div>
+    </div>
+  </div>
+
+  <!-- 基本信息 -->
+  <div class="card">
+    <div class="card-title">基本信息</div>
+    <div class="form-group">
+      <label class="form-label">预约送货日期 <span class="required">*</span></label>
+      <input type="date" id="appointmentDate" class="form-input" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">供应商名称 <span class="required">*</span></label>
+      <input type="text" id="supplierName" class="form-input" placeholder="请输入供应商公司全称" maxlength="50" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">司机联系方式 <span class="required">*</span></label>
+      <input type="tel" id="driverPhone" class="form-input" placeholder="请输入手机号码" maxlength="11" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">车牌号码（一车一单） <span class="required">*</span></label>
+      <input type="text" id="plateNumber" class="form-input" placeholder="如：豫A·12345" maxlength="10" required>
+    </div>
+  </div>
+
+  <!-- 货物信息 -->
+  <div class="card">
+    <div class="card-title">货物信息</div>
+    <div class="form-group">
+      <label class="form-label">送货品名 <span class="required">*</span></label>
+      <input type="text" id="productName" class="form-input" placeholder="请输入送货商品名称" maxlength="100" required>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">箱数 <span class="required">*</span></label>
+        <div class="input-with-unit">
+          <input type="number" id="pieceCount" class="form-input" placeholder="0" min="1" max="99999" required>
+          <span class="unit">箱</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">重量 <span class="required">*</span></label>
+        <div class="input-with-unit">
+          <input type="number" id="weight" class="form-input" placeholder="0.00" min="0.01" step="0.01" max="99999" required>
+          <span class="unit">kg</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">卸货方式 <span class="required">*</span></label>
+      <div class="radio-group">
+        <div class="radio-item">
+          <input type="radio" name="unloadMethod" id="unloadSelf" value="自卸" checked>
+          <label for="unloadSelf">自卸</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" name="unloadMethod" id="unloadThird" value="第三方卸">
+          <label for="unloadThird">第三方卸</label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">备注</label>
+      <textarea id="remark" class="form-textarea" placeholder="如有特殊要求请在此备注（选填）" maxlength="200"></textarea>
+    </div>
+  </div>
+
+  <!-- 重要提示 -->
+  <div class="card" style="background:#fff2f0;border:1px solid #ffccc7;margin-bottom:16px;">
+    <div style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#cf1322;line-height:1.7;">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:2px;">
+        <path d="M8 1L15 14H1L8 1Z" stroke="#cf1322" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M8 6v3M8 11.5v.5" stroke="#cf1322" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <strong>一车一单</strong>，禁止同单品预约2次，避免一托两码。<br>
+        预约单信息必须与送货单一致（69码+数量）。<br>
+        送货时带送货单和系统预约单据。
+      </div>
+    </div>
+  </div>
+
+  <!-- 提交按钮 -->
+  <button class="btn btn-primary" id="submitBtn" onclick="submitAppointment()">
+    提交预约
+  </button>
+
+  <!-- 查询审核状态 -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">查询审核状态</div>
+    <div class="form-group">
+      <label class="form-label">司机手机号</label>
+      <input type="tel" id="queryPhone" class="form-input" placeholder="请输入预约时填写的手机号" maxlength="11">
+    </div>
+    <button class="btn btn-primary" id="queryBtn" onclick="queryStatus()" style="background:#595959">
+      查询我的预约
+    </button>
+    <div id="queryResult" style="margin-top:12px"></div>
+  </div>
+  <div class="footer-tip">新大新物流园 · 送货预约系统</div>
+</div>
+
+<script>
+// 设置默认日期为明天
+(function() {
+  var tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  var yyyy = tomorrow.getFullYear();
+  var mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+  var dd = String(tomorrow.getDate()).padStart(2, '0');
+  document.getElementById('appointmentDate').value = yyyy + '-' + mm + '-' + dd;
+  document.getElementById('appointmentDate').min = yyyy + '-' + mm + '-' + dd;
+})();
+
+function showToast(msg) {
+  var existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  var toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.getElementById('toastContainer').appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
+function showLoading(show) {
+  document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+}
+
+function submitAppointment() {
+  // 收集数据
+  var data = {
+    appointment_date: document.getElementById('appointmentDate').value,
+    supplier_name: document.getElementById('supplierName').value.trim(),
+    driver_phone: document.getElementById('driverPhone').value.trim(),
+    plate_number: document.getElementById('plateNumber').value.trim(),
+    product_name: document.getElementById('productName').value.trim(),
+    piece_count: parseInt(document.getElementById('pieceCount').value) || 0,
+    weight: parseFloat(document.getElementById('weight').value) || 0,
+    unload_method: document.querySelector('input[name="unloadMethod"]:checked').value,
+    remark: document.getElementById('remark').value.trim()
+  };
+
+  // 验证
+  if (!data.appointment_date) { showToast('请选择预约送货日期'); return; }
+  if (!data.supplier_name) { showToast('请输入供应商名称'); return; }
+  if (!data.driver_phone) { showToast('请输入司机联系方式'); return; }
+  if (!/^1\d{10}$/.test(data.driver_phone)) { showToast('请输入正确的手机号码'); return; }
+  if (!data.plate_number) { showToast('请输入车牌号码'); return; }
+  if (data.plate_number.length < 3) { showToast('请输入正确的车牌号码'); return; }
+  if (!data.product_name) { showToast('请输入送货品名'); return; }
+  if (!data.piece_count || data.piece_count <= 0) { showToast('请输入正确的箱数'); return; }
+  if (!data.weight || data.weight <= 0) { showToast('请输入正确的重量'); return; }
+
+  showLoading(true);
+  document.getElementById('submitBtn').disabled = true;
+
+  fetch('/api/appointment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    showLoading(false);
+    document.getElementById('submitBtn').disabled = false;
+    if (res.success) {
+      // 展示成功页
+      var container = document.getElementById('mainContent');
+      container.innerHTML = [
+        '<div class="success-page">',
+        '  <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>',
+        '  <h2>预约提交成功</h2>',
+        '  <p class="sub">预约编号：<strong>' + res.id + '</strong>｜状态：<span style="color:#d48806;font-weight:600">待审核</span></p>',
+        '  <div class="success-info">',
+        '    <div class="row"><span class="label">供应商</span><span class="value">' + escapeHtml(data.supplier_name) + '</span></div>',
+        '    <div class="row"><span class="label">预约日期</span><span class="value">' + data.appointment_date + '</span></div>',
+        '    <div class="row"><span class="label">车牌号码</span><span class="value">' + escapeHtml(data.plate_number) + '</span></div>',
+        '    <div class="row"><span class="label">送货品名</span><span class="value">' + escapeHtml(data.product_name) + '</span></div>',
+        '    <div class="row"><span class="label">箱数/重量</span><span class="value">' + data.piece_count + '箱 / ' + data.weight + 'kg</span></div>',
+        '    <div class="row"><span class="label">卸货方式</span><span class="value">' + data.unload_method + '</span></div>',
+        '  </div>',
+        '  <button class="btn btn-primary" onclick="location.reload()">继续预约下一单</button>',
+        '</div>'
+      ].join('');
+    } else {
+      showToast(res.message || '提交失败，请重试');
+    }
+  })
+  .catch(function(err) {
+    showLoading(false);
+    document.getElementById('submitBtn').disabled = false;
+    showToast('网络错误，请检查连接后重试');
+  });
+}
+
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Enter键提交
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.activeElement && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    submitAppointment();
+  }
+});
+
+// 查询审核状态
+function queryStatus() {
+  var phone = document.getElementById('queryPhone').value.trim();
+  if (!phone) { showToast('请输入手机号码'); return; }
+  if (!/^1\d{10}$/.test(phone)) { showToast('请输入正确的手机号码'); return; }
+  
+  var btn = document.getElementById('queryBtn');
+  btn.disabled = true;
+  btn.textContent = '查询中...';
+  
+  fetch('/api/check-status?phone=' + encodeURIComponent(phone))
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      btn.disabled = false;
+      btn.textContent = '查询我的预约';
+      
+      var container = document.getElementById('queryResult');
+      if (!res.success) {
+        container.innerHTML = '<div class="hint error">' + escapeHtml(res.message) + '</div>';
+        return;
+      }
+      if (!res.data || res.data.length === 0) {
+        container.innerHTML = '<div class="hint" style="text-align:center;padding:16px;color:#999">未找到预约记录</div>';
+        return;
+      }
+      
+      var statusColors = {
+        '待审核': '#d48806',
+        '已通过': '#1677ff',
+        '已拒绝': '#cf1322',
+        '已到仓': '#006d75',
+        '已完成': '#389e0d',
+        '已取消': '#cf1322'
+      };
+      
+      var html = '';
+      res.data.forEach(function(item) {
+        var color = statusColors[item.status] || '#999';
+        html += '<div style="background:#fafafa;border-radius:8px;padding:12px;margin-bottom:8px;border-left:3px solid ' + color + '">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+            '<strong>#' + item.id + ' ' + escapeHtml(item.product_name) + '</strong>' +
+            '<span style="color:' + color + ';font-weight:600;font-size:13px">' + item.status + '</span>' +
+          '</div>' +
+          '<div style="font-size:12px;color:#999">' +
+            item.appointment_date + ' | ' + escapeHtml(item.plate_number) + ' | ' + item.piece_count + '箱/' + item.weight + 'kg' +
+          '</div>' +
+          (item.status === '已通过' ? '<div style="margin-top:6px;font-size:12px;color:#1677ff">✅ 审核已通过，请按时到仓送货</div>' : '') +
+          (item.status === '已拒绝' ? '<div style="margin-top:6px;font-size:12px;color:#cf1322">❌ 审核未通过，请联系管理员</div>' : '') +
+          (item.status === '待审核' ? '<div style="margin-top:6px;font-size:12px;color:#d48806">⏳ 等待管理员审核中...</div>' : '') +
+        '</div>';
+      });
+      container.innerHTML = html;
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = '查询我的预约';
+      showToast('网络错误，请重试');
+    });
+}
+</script>
+
+</body>
+</html>

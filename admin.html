@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 - 新大新物流园送货预约</title>
+<style>
+:root {
+  --primary: #1677ff;
+  --success: #52c41a;
+  --warning: #faad14;
+  --danger: #ff4d4f;
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --text: #262626;
+  --text-secondary: #595959;
+  --text-light: #8c8c8c;
+  --border: #f0f0f0;
+  --radius: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 顶部 */
+.topbar {
+  background: #001529;
+  color: #fff;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topbar h1 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.topbar .nav-links a {
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  margin-left: 24px;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.topbar .nav-links a:hover,
+.topbar .nav-links a.active {
+  color: #fff;
+}
+
+/* 页面容器 */
+.page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* 统计卡片 */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr) !important; }
+  .filter-row { flex-direction: column; }
+  .table-wrapper { overflow-x: auto; }
+}
+
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.stat-icon.total { background: #f0f0f0; color: #595959; }
+.stat-icon.review { background: #fff7e6; color: #d48806; }
+.stat-icon.approved { background: #e6f4ff; color: var(--primary); }
+.stat-icon.arrived { background: #e6fffb; color: #13c2c2; }
+.stat-icon.completed { background: #f6ffed; color: var(--success); }
+
+.stat-info .stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stat-info .stat-label {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* 筛选 */
+.filter-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-row input[type="date"] {
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.filter-row select {
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-primary:hover { background: #4096ff; }
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.btn-success { background: var(--success); color: #fff; }
+.btn-warning { background: #fa8c16; color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-default { background: #fff; color: var(--text); border: 1px solid #d9d9d9; }
+
+/* 表格 */
+.table-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.table-header .count {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #fafafa;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+tr:hover td {
+  background: #fafafa;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-review { background: #fff7e6; color: #d48806; }
+.badge-approved { background: #e6f4ff; color: #0958d9; }
+.badge-rejected { background: #fff1f0; color: #cf1322; }
+.badge-pending { background: #fff7e6; color: #d48806; }
+.badge-arrived { background: #e6fffb; color: #006d75; }
+.badge-completed { background: #f6ffed; color: #389e0d; }
+.badge-cancelled { background: #fff1f0; color: #cf1322; }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-light);
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+/* 模态框 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 24px;
+  min-width: 320px;
+  max-width: 400px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.12);
+}
+
+.modal h3 {
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.modal .status-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* 公网地址公告板 */
+.public-url-bar {
+  background: linear-gradient(135deg, #e6f4ff 0%, #d6e4ff 100%);
+  border: 1px solid #91caff;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.public-url-bar .url-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0958d9;
+  white-space: nowrap;
+}
+
+.public-url-bar .url-text {
+  font-size: 15px;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+  color: #1677ff;
+  font-weight: 700;
+  background: #fff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #91caff;
+  word-break: break-all;
+}
+
+.public-url-bar .url-copy-btn {
+  background: #1677ff;
+  color: #fff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.public-url-bar .url-copy-btn:hover { background: #4096ff; }
+
+.public-url-bar .url-copy-btn.copied { background: #52c41a; }
+
+.public-url-bar .url-hint {
+  font-size: 12px;
+  color: #8c8c8c;
+  width: 100%;
+}
+
+/* 刷新时间 */
+.last-update {
+  font-size: 12px;
+  color: var(--text-light);
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>📋 新大新物流园 · 预约管理后台</h1>
+  <div class="nav-links">
+    <span style="color:rgba(255,255,255,0.45);font-size:13px" id="currentTime"></span>
+  </div>
+</div>
+
+<div class="page">
+  <!-- 公网地址公告板 -->
+  <div class="public-url-bar" id="publicUrlBar">
+    <span class="url-label">🔗 司机预约地址</span>
+    <span class="url-text" id="publicUrlText">加载中...</span>
+    <button class="url-copy-btn" id="urlCopyBtn" onclick="copyPublicUrl()">📋 一键复制</button>
+    <span class="url-hint" id="urlHint"></span>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="stats-row" id="statsRow" style="grid-template-columns:repeat(5,1fr)">
+    <div class="stat-card">
+      <div class="stat-icon total">📦</div>
+      <div class="stat-info"><div class="stat-value" id="statTotal">-</div><div class="stat-label">今日预约</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon review">⏳</div>
+      <div class="stat-info"><div class="stat-value" id="statPending">-</div><div class="stat-label">待审核</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon approved">✅</div>
+      <div class="stat-info"><div class="stat-value" id="statApproved">-</div><div class="stat-label">已通过</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon arrived">🚚</div>
+      <div class="stat-info"><div class="stat-value" id="statArrived">-</div><div class="stat-label">已到仓</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon completed">🏁</div>
+      <div class="stat-info"><div class="stat-value" id="statCompleted">-</div><div class="stat-label">已完成</div></div>
+    </div>
+  </div>
+
+  <!-- 筛选 -->
+  <div class="filter-row">
+    <input type="date" id="filterDateFrom" title="开始日期">
+    <span style="color:var(--text-light)">至</span>
+    <input type="date" id="filterDateTo" title="结束日期">
+    <select id="filterStatus">
+      <option value="">全部状态</option>
+      <option value="待审核">待审核</option>
+      <option value="已通过">已通过</option>
+      <option value="已拒绝">已拒绝</option>
+      <option value="已到仓">已到仓</option>
+      <option value="已完成">已完成</option>
+      <option value="已取消">已取消</option>
+    </select>
+    <button class="btn btn-primary" onclick="loadAppointments()">🔍 查询</button>
+    <button class="btn btn-default" onclick="resetFilter()">重置</button>
+    <span style="flex:1"></span>
+    <button class="btn btn-default" onclick="exportCSV()">📥 导出CSV</button>
+    <span class="last-update" id="lastUpdate"></span>
+  </div>
+
+  <!-- 表格 -->
+  <div class="table-card">
+    <div class="table-header">
+      <h3>预约记录</h3>
+      <span class="count" id="recordCount">共 0 条</span>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>编号</th>
+            <th>预约日期</th>
+            <th>供应商</th>
+            <th>司机电话</th>
+            <th>车牌号</th>
+            <th>品名</th>
+            <th>箱数</th>
+            <th>重量(kg)</th>
+            <th>卸货方式</th>
+            <th>备注</th>
+            <th>状态</th>
+            <th>提交时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="14" class="empty-state">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#bfbfbf" stroke-width="1">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+              </svg>
+              <p>点击"查询"获取预约记录</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== 公网地址公告板 ======
+(function initPublicUrl() {
+  var origin = window.location.origin;
+  var driverUrl = origin + '/';
+  var isLocalhost = origin.indexOf('localhost') >= 0 || origin.indexOf('127.0.0.1') >= 0;
+  
+  document.getElementById('publicUrlText').textContent = driverUrl;
+  
+  if (isLocalhost) {
+    document.getElementById('urlHint').textContent = 
+      '⚠️ 当前通过本机访问。如已启动公网隧道，请用公网地址打开此页面，此处将自动显示可分享给司机的链接。';
+  } else {
+    document.getElementById('urlHint').textContent = 
+      '✅ 将此地址发给司机，手机浏览器即可打开预约。地址重启前不变。';
+  }
+})();
+
+function copyPublicUrl() {
+  var url = document.getElementById('publicUrlText').textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function() {
+      var btn = document.getElementById('urlCopyBtn');
+      btn.textContent = '✅ 已复制!';
+      btn.classList.add('copied');
+      setTimeout(function() {
+        btn.textContent = '📋 一键复制';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  } else {
+    // Fallback
+    var textarea = document.createElement('textarea');
+    textarea.value = url;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(textarea);
+    var btn = document.getElementById('urlCopyBtn');
+    btn.textContent = '✅ 已复制!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = '📋 一键复制';
+      btn.classList.remove('copied');
+    }, 2000);
+  }
+}
+
+// 初始化日期
+(function() {
+  var today = new Date();
+  var yyyy = today.getFullYear();
+  var mm = String(today.getMonth() + 1).padStart(2, '0');
+  var dd = String(today.getDate()).padStart(2, '0');
+  var todayStr = yyyy + '-' + mm + '-' + dd;
+  document.getElementById('filterDateFrom').value = todayStr;
+  document.getElementById('filterDateTo').value = todayStr;
+  updateClock();
+  setInterval(updateClock, 60000);
+  loadAppointments();
+  loadStats();
+  // 每60秒自动刷新
+  setInterval(function() { loadAppointments(); loadStats(); }, 60000);
+})();
+
+function updateClock() {
+  var now = new Date();
+  document.getElementById('currentTime').textContent = 
+    now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + 
+    String(now.getDate()).padStart(2,'0') + ' ' +
+    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + 
+    String(now.getSeconds()).padStart(2,'0');
+}
+
+function loadStats() {
+  var date = document.getElementById('filterDateFrom').value;
+  fetch('/api/stats?date=' + date)
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.success) {
+        document.getElementById('statTotal').textContent = res.stats.total;
+        document.getElementById('statPending').textContent = res.stats.pending;
+        document.getElementById('statApproved').textContent = res.stats.approved;
+        document.getElementById('statArrived').textContent = res.stats.arrived;
+        document.getElementById('statCompleted').textContent = res.stats.completed;
+      }
+    });
+}
+
+function loadAppointments() {
+  var dateFrom = document.getElementById('filterDateFrom').value;
+  var dateTo = document.getElementById('filterDateTo').value;
+  var status = document.getElementById('filterStatus').value;
+  
+  var params = [];
+  if (dateFrom) params.push('date_from=' + dateFrom);
+  if (dateTo) params.push('date_to=' + dateTo);
+  if (status) params.push('status=' + encodeURIComponent(status));
+  
+  var url = '/api/appointments' + (params.length ? '?' + params.join('&') : '');
+  
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      document.getElementById('recordCount').textContent = '共 ' + res.count + ' 条';
+      document.getElementById('lastUpdate').textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN');
+      
+      var tbody = document.getElementById('tableBody');
+      if (!res.data || res.data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="14" class="empty-state">暂无预约记录</td></tr>';
+        return;
+      }
+      
+      var statusMap = {
+        '待审核': 'badge-review',
+        '已通过': 'badge-approved',
+        '已拒绝': 'badge-rejected',
+        '已到仓': 'badge-arrived',
+        '已完成': 'badge-completed',
+        '已取消': 'badge-cancelled'
+      };
+      
+      var html = '';
+      res.data.forEach(function(item) {
+        var badgeClass = statusMap[item.status] || 'badge-review';
+        var rowColor = '';
+        if (item.status === '已取消' || item.status === '已拒绝') rowColor = ' style="opacity:0.5"';
+        
+        var actions = '';
+        if (item.status === '待审核') {
+          actions = '<button class="btn btn-sm" style="background:#1677ff;color:#fff" onclick="changeStatus(' + item.id + ', \'已通过\')">通过</button> ' +
+                    '<button class="btn btn-sm btn-danger" onclick="changeStatus(' + item.id + ', \'已拒绝\')">拒绝</button>';
+        } else if (item.status === '已通过') {
+          actions = '<button class="btn btn-sm btn-warning" onclick="changeStatus(' + item.id + ', \'已到仓\')">到仓</button> ' +
+                    '<button class="btn btn-sm btn-danger" onclick="changeStatus(' + item.id + ', \'已取消\')">取消</button>';
+        } else if (item.status === '已到仓') {
+          actions = '<button class="btn btn-sm btn-success" onclick="changeStatus(' + item.id + ', \'已完成\')">完成</button>';
+        } else {
+          actions = '-';
+        }
+        
+        html += '<tr' + rowColor + '>' +
+          '<td>' + item.id + '</td>' +
+          '<td><strong>' + item.appointment_date + '</strong></td>' +
+          '<td>' + escapeHtml(item.supplier_name) + '</td>' +
+          '<td>' + escapeHtml(item.driver_phone) + '</td>' +
+          '<td>' + escapeHtml(item.plate_number) + '</td>' +
+          '<td>' + escapeHtml(item.product_name) + '</td>' +
+          '<td>' + item.piece_count + '</td>' +
+          '<td>' + item.weight + '</td>' +
+          '<td>' + item.unload_method + '</td>' +
+          '<td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(item.remark || '') + '">' + escapeHtml(item.remark || '-') + '</td>' +
+          '<td><span class="badge ' + badgeClass + '">' + item.status + '</span></td>' +
+          '<td style="font-size:12px;color:var(--text-light)">' + (item.created_at || '') + '</td>' +
+          '<td style="white-space:nowrap">' + actions + '</td>' +
+          '</tr>';
+      });
+      tbody.innerHTML = html;
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
+}
+
+function changeStatus(id, newStatus) {
+  if (!confirm('确认将预约 #' + id + ' 状态改为「' + newStatus + '」？')) return;
+  
+  fetch('/api/appointment/' + id + '/status', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: newStatus })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (res.success) {
+      loadAppointments();
+      loadStats();
+    } else {
+      alert('操作失败: ' + res.message);
+    }
+  });
+}
+
+function resetFilter() {
+  var today = new Date();
+  var yyyy = today.getFullYear();
+  var mm = String(today.getMonth() + 1).padStart(2, '0');
+  var dd = String(today.getDate()).padStart(2, '0');
+  document.getElementById('filterDateFrom').value = yyyy + '-' + mm + '-' + dd;
+  document.getElementById('filterDateTo').value = yyyy + '-' + mm + '-' + dd;
+  document.getElementById('filterStatus').value = '';
+  loadAppointments();
+  loadStats();
+}
+
+function exportCSV() {
+  var dateFrom = document.getElementById('filterDateFrom').value;
+  var dateTo = document.getElementById('filterDateTo').value;
+  var status = document.getElementById('filterStatus').value;
+  
+  var params = [];
+  if (dateFrom) params.push('date_from=' + dateFrom);
+  if (dateTo) params.push('date_to=' + dateTo);
+  if (status) params.push('status=' + encodeURIComponent(status));
+  
+  var url = '/api/appointments' + (params.length ? '?' + params.join('&') : '');
+  
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (!res.data || res.data.length === 0) { alert('没有数据可导出'); return; }
+      
+      var BOM = '\uFEFF';
+      var csv = BOM + '编号,预约日期,供应商,司机电话,车牌号,品名,箱数,重量(kg),卸货方式,备注,状态,提交时间\n';
+      res.data.forEach(function(item) {
+        csv += [
+          item.id, item.appointment_date, 
+          '"' + (item.supplier_name || '').replace(/"/g, '""') + '"',
+          item.driver_phone, item.plate_number,
+          '"' + (item.product_name || '').replace(/"/g, '""') + '"',
+          item.piece_count, item.weight,
+          item.unload_method,
+          '"' + (item.remark || '').replace(/"/g, '""') + '"',
+          item.status, item.created_at
+        ].join(',') + '\n';
+      });
+      
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '预约记录_' + (dateFrom || 'all') + '.csv';
+      link.click();
+    });
+}
+
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
